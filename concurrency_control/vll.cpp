@@ -108,13 +108,13 @@ uint64_t t3 = get_sys_clock();
 		if (type == RD) {
 			for (int fid = 0; fid < schema->get_field_cnt(); fid++) {
 				char * data = row->get_data();
-				uint64_t fval = *(uint64_t *)(&data[fid * 100]);
+				uint64_t fval = *(uint64_t *)(&data[fid * 10]);
            	}
 		} else {
 			assert(type == WR);
 			for (int fid = 0; fid < schema->get_field_cnt(); fid++) {
 				char * data = row->get_data();
-				*(uint64_t *)(&data[fid * 100]) = 0;
+				*(uint64_t *)(&data[fid * 10]) = 0;
 			}
 		} 
 	}
