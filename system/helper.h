@@ -55,14 +55,15 @@
 /************************************************/
 #define LIST_GET_HEAD(lhead, ltail, en) {\
 	en = lhead; \
+	if(en) {\
 	lhead = lhead->next; \
 	if (lhead) lhead->prev = NULL; \
 	else ltail = NULL; \
-	en->next = NULL; }
+	en->next = NULL; } }
 #define LIST_PUT_TAIL(lhead, ltail, en) {\
 	en->next = NULL; \
 	en->prev = NULL; \
-	if (ltail) { en->prev = ltail; ltail->next = en; ltail = en; } \
+	if (lhead && ltail) { en->prev = ltail; ltail->next = en; ltail = en; } \
 	else { lhead = en; ltail = en; }}
 #define LIST_INSERT_BEFORE(entry, newentry) { \
 	newentry->next = entry; \

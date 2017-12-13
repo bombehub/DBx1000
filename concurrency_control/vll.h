@@ -4,7 +4,7 @@
 #include "global.h"
 #include "helper.h"
 #include "query.h"
-
+#include "txn.h"
 class txn_man;
 
 class TxnQEntry {
@@ -12,12 +12,15 @@ public:
 	TxnQEntry * prev;
 	TxnQEntry * next;
 	txn_man * 	txn;
+	TxnType vll_txn_type ;
 };
 
 class VLLMan {
 public:
 	void init();
 	void vllMainLoop(txn_man * next_txn, base_query * query);
+	void exe_blocked();
+	void mrsw();
 	// 	 1: txn is blocked
 	//	 2: txn is not blocked. Can run.
 	//   3: txn_queue is full. 
@@ -28,7 +31,13 @@ private:
     TxnQEntry * 			_txn_queue;
     TxnQEntry * 			_txn_queue_tail;
 	int 					_txn_queue_size;
+    TxnQEntry * 			_serial_queue;
+    TxnQEntry * 			_serial_queue_tail;
+	int 					_serial_queue_size;
 	pthread_mutex_t 		_mutex;
+	pthread_mutex_t 		_mutex_queue;
+	pthread_mutex_t 		_mutex_serial;
+	pthread_rwlock_t  _rw_lock;
 
 	TxnQEntry * getQEntry();
 	void returnQEntry(TxnQEntry * entry);

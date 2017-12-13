@@ -23,6 +23,9 @@ row_t::init(table_t * host_table, uint64_t part_id, uint64_t row_id) {
 	Catalog * schema = host_table->get_schema();
 	int tuple_size = schema->get_tuple_size();
 	data = (char *) _mm_malloc(sizeof(char) * tuple_size, 64);
+#if CC_ALG == VLL
+	data2 = (char *) _mm_malloc(sizeof(char) * tuple_size, 64);
+#endif
 	return RCOK;
 }
 void 

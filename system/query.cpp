@@ -18,7 +18,6 @@ Query_queue::init(workload * h_wl) {
 	_wl = h_wl;
 	_next_tid = 0;
 	
-
 #if WORKLOAD == YCSB	
 	ycsb_query::calculateDenom();
 #elif WORKLOAD == TPCC

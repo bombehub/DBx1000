@@ -150,7 +150,20 @@ void ycsb_query::gen_requests(uint64_t thd_id, workload * h_wl) {
 					requests[j + 1] = tmp;
 				}
 		for (UInt32 i = 0; i < request_cnt - 1; i++)
+		{
 			assert(requests[i].key < requests[i + 1].key);
+		}
+	}
+	this->rtype = RD;
+	//printf("RD\n");
+	for (UInt32 i = 0; i < request_cnt - 1; i++)
+	{
+		if(requests[i].rtype == WR)
+			{
+				this->rtype = WR;
+				//printf("WR\n");
+				break;
+			}
 	}
 
 }

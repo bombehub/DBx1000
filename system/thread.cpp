@@ -12,7 +12,7 @@
 #include "tpcc_query.h"
 #include "mem_alloc.h"
 #include "test.h"
-
+extern pthread_barrier_t thread_bar;
 void thread_t::init(uint64_t thd_id, workload * workload) {
 	_thd_id = thd_id;
 	_wl = workload;
@@ -38,10 +38,10 @@ RC thread_t::run() {
 	if (warmup_finish) {
 		mem_allocator.register_thread(_thd_id);
 	}
-	pthread_barrier_wait( &warmup_bar );
+	/*pthread_barrier_wait( &warmup_bar );
 	stats.init(get_thd_id());
-	pthread_barrier_wait( &warmup_bar );
-
+	pthread_barrier_wait( &warmup_bar );*/
+	pthread_barrier_wait(&thread_bar);
 	set_affinity(get_thd_id());
 
 	myrand rdm;
@@ -96,7 +96,7 @@ RC thread_t::run() {
 					m_query = query_queue->get_next_query( _thd_id );
 			}
 		}
-		INC_STATS(_thd_id, time_query, get_sys_clock() - starttime);
+		//INC_STATS(_thd_id, time_query, get_sys_clock() - starttime);
 		m_txn->abort_cnt = 0;
 #if CC_ALG == VLL
 		_wl->get_txn_man(m_txn, this);
@@ -167,17 +167,17 @@ RC thread_t::run() {
 
 		ts_t endtime = get_sys_clock();
 		uint64_t timespan = endtime - starttime;
-		INC_STATS(get_thd_id(), run_time, timespan);
-		INC_STATS(get_thd_id(), latency, timespan);
+		//INC_STATS(get_thd_id(), run_time, timespan);
+		//INC_STATS(get_thd_id(), latency, timespan);
 		//stats.add_lat(get_thd_id(), timespan);
 		if (rc == RCOK) {
-			INC_STATS(get_thd_id(), txn_cnt, 1);
-			stats.commit(get_thd_id());
+			//INC_STATS(get_thd_id(), txn_cnt, 1);
+			//stats.commit(get_thd_id());
 			txn_cnt ++;
 		} else if (rc == Abort) {
-			INC_STATS(get_thd_id(), time_abort, timespan);
-			INC_STATS(get_thd_id(), abort_cnt, 1);
-			stats.abort(get_thd_id());
+			//INC_STATS(get_thd_id(), time_abort, timespan);
+			//INC_STATS(get_thd_id(), abort_cnt, 1);
+			//stats.abort(get_thd_id());
 			m_txn->abort_cnt ++;
 		}
 
@@ -185,7 +185,7 @@ RC thread_t::run() {
 			return rc;
 		if (!warmup_finish && txn_cnt >= WARMUP / g_thread_cnt) 
 		{
-			stats.clear( get_thd_id() );
+			//stats.clear( get_thd_id() );
 			return FINISH;
 		}
 

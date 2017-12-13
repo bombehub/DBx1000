@@ -9,9 +9,10 @@
 #include "plock.h"
 #include "occ.h"
 #include "vll.h"
-
+extern pthread_barrier_t thread_bar;
 void * f(void *);
-
+void * exe_blocked(void * id);
+void * mrsw(void * id);
 thread_t ** m_thds;
 
 // defined in parser.cpp
@@ -87,6 +88,7 @@ int main(int argc, char* argv[])
 
 	// spawn and run txns again.
 	int64_t starttime = get_server_clock();
+#if CC_ALG != VLL
 	for (uint32_t i = 0; i < thd_cnt - 1; i++) {
 		uint64_t vid = i;
 		pthread_create(&p_thds[i], NULL, f, (void *)vid);
@@ -94,8 +96,28 @@ int main(int argc, char* argv[])
 	f((void *)(thd_cnt - 1));
 	for (uint32_t i = 0; i < thd_cnt - 1; i++) 
 		pthread_join(p_thds[i], NULL);
+#else
+	pthread_barrier_init( &thread_bar, NULL, thd_cnt * 2 + 1 );
+	for (uint32_t i = 0; i < thd_cnt ; i++) {
+		uint64_t vid = i;
+		pthread_create(&p_thds[i], NULL, f, (void *)vid);
+	}
+	pthread_t thread_head;
+	pthread_create(&thread_head, NULL, exe_blocked, NULL);
+	 pthread_t daemon[thd_cnt - 1];
+	for (uint32_t i = 0; i < thd_cnt ; i++) {
+		uint64_t vid = i;
+		pthread_create(&daemon[i], NULL,mrsw, NULL);
+	}
+
+	for (uint32_t i = 0; i < thd_cnt; i++){
+		pthread_join(p_thds[i], NULL);
+//		pthread_join(daemon[i], NULL);
+	}
+	//pthread_join(thread_head, NULL);
+	//sleep(10);
+#endif
 	int64_t endtime = get_server_clock();
-	
 	if (WORKLOAD != TEST) {
 		printf("PASS! SimTime = %ld\n", endtime - starttime);
 		if (STATS_ENABLE)
@@ -111,3 +133,14 @@ void * f(void * id) {
 	m_thds[tid]->run();
 	return NULL;
 }
+#if CC_ALG == VLL
+void * exe_blocked(void * id) {
+	vll_man.exe_blocked();  //consumers queue problem
+	return NULL;
+}
+
+void * mrsw(void * id) {
+	vll_man.mrsw();  //consumers queue problem
+	return NULL;
+}
+#endif
