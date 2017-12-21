@@ -26,7 +26,17 @@
 #define COMPILER_BARRIER asm volatile("" ::: "memory");
 //#define PAUSE { __asm__ ( "pause;" ); }
 #define PAUSE usleep(1);
-
+#define cas_lock(lkp) do{  \
+    while(!__sync_bool_compare_and_swap(lkp, 0, 1)){    \
+        sched_yield();  \
+    }   \
+}while(0)
+#define cas_unlock(lkp) do{    \
+    *(lkp) = 0;  \
+}while(0)
+#define cas_try_lock(lkp) ({   \
+    (__sync_bool_compare_and_swap(lkp, 0, 1) ? 0 : -1);   \
+})
 /************************************************/
 // ASSERT Helper
 /************************************************/

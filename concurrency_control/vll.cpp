@@ -10,53 +10,65 @@
 #include "catalog.h"
 #include "mem_alloc.h"
 #if CC_ALG == VLL
-extern pthread_barrier_t thread_bar;
+
+
+void query_txn(gpointer txn2, gpointer data) {
+	txn_man* txn = (txn_man*)txn2;
+	pthread_rwlock_rdlock(&_rw_lock);
+	for (int rid = 0; rid < txn->row_cnt; rid++) {
+		row_t * row = txn->accesses[rid]->orig_row;
+		access_t type = txn->accesses[rid]->type;
+		if (type == WR) {
+			char* data = row->data2;
+		}
+	}
+	//printf("4");
+	pthread_rwlock_unlock(&_rw_lock);
+}
 
 void VLLMan::init() {
 	_txn_queue_size = 0;
 	_txn_queue = NULL;
 	_txn_queue_tail = NULL;
-	pthread_mutex_init(&_mutex, NULL);
 	_serial_queue_size = 0;
-	_serial_queue = NULL;
-	_serial_queue_tail = NULL;
-	pthread_mutex_init(&_mutex_serial, NULL);
+	_serial_queue = queue_init();
+	//_serial_queue_tail = NULL;
+	pthread_mutex_init(&_mutex_queue, NULL);
+	//pthread_mutex_init(&_mutex_serial, NULL);
+	pthread_mutex_init(&_mutex, NULL);
+	pthread_rwlock_init(&_rw_lock,NULL);
+	g_thread_init(NULL);
+	thread_pool = g_thread_pool_new(query_txn, NULL, THREAD_QUERY, TRUE, NULL);
 }
 
 void VLLMan::exe_blocked() {
-	pthread_barrier_wait(&thread_bar);
 	while (1) {
 		TxnQEntry* front = NULL;
 		txn_man* front_txn = NULL;
 		pthread_mutex_lock(&_mutex_queue);
-		LIST_GET_HEAD(_txn_queue, _txn_queue_tail, front); // get null OR pop head
+		LIST_GET_HEAD(_txn_queue, _txn_queue_tail, front); // front = (null OR pop head)
 		pthread_mutex_unlock(&_mutex_queue);
+		//front_txn = (txn_man*)queue_dequeue(_txn_queue);
 		if (front != NULL) {
 			front_txn = front->txn;
 			execute(front_txn, NULL);
+			//printf("1");
 			finishTxn(front_txn, front);
 		}
 	}
 }
 void VLLMan::mrsw() { // run multi mrsw in main.cpp
-	pthread_barrier_wait(&thread_bar);
 	while (1) {
-		pthread_mutex_lock(&_mutex_serial);
-		TxnQEntry * front = /*_serial_queue*/  NULL;
+		//pthread_mutex_lock(&_mutex_serial);
+		TxnQEntry * front = NULL;
 		txn_man* front_txn = NULL;
-		LIST_GET_HEAD(_serial_queue, _serial_queue_tail, front);
-		if (front) {
-			front_txn = front->txn;
-			if (front_txn->rtype == RD) {
+		//LIST_GET_HEAD(_serial_queue, _serial_queue_tail, front);
+		front_txn = (txn_man*) queue_dequeue(_serial_queue);
+		//printf("pop txn\n");
+		if (front_txn) {
+			//front_txn = front->txn;
+			/*if (front_txn->rtype == RD) {
 				pthread_rwlock_rdlock(&_rw_lock);
-			}
-			if (front_txn->rtype == WR) {
-				pthread_rwlock_wrlock(&_rw_lock);
-			}
-		}
-		pthread_mutex_unlock(&_mutex_serial);
-		if (front) {
-			if (front_txn->rtype == RD) {
 				for (int rid = 0; rid < front_txn->row_cnt; rid++) {
 					row_t * row = front_txn->accesses[rid]->orig_row;
 					access_t type = front_txn->accesses[rid]->type;
@@ -65,19 +77,45 @@ void VLLMan::mrsw() { // run multi mrsw in main.cpp
 					}
 				}
 				pthread_rwlock_unlock(&_rw_lock);
-			}
-			else if (front_txn->rtype == WR) {
+			} else if (front_txn->rtype == WR) {*/
+				pthread_rwlock_wrlock(&_rw_lock);
 				for (int rid = 0; rid < front_txn->row_cnt; rid++) {
 					row_t * row = front_txn->accesses[rid]->orig_row;
 					access_t type = front_txn->accesses[rid]->type;
 					if (type == WR) {
 						memcpy(row->data2, row->data, sizeof(row->data));
-						front_txn->accesses[rid]->orig_row->manager->remove_access(type);
+						front_txn->accesses[rid]->orig_row->manager->remove_access(
+								type);
 					}
 				}
+				//printf("3");
 				pthread_rwlock_unlock(&_rw_lock);
 			}
-		}
+
+		//pthread_mutex_unlock(&_mutex_serial);
+		/*		if (front_txn) {
+		 if (front_txn->rtype == RD) {
+		 for (int rid = 0; rid < front_txn->row_cnt; rid++) {
+		 row_t * row = front_txn->accesses[rid]->orig_row;
+		 access_t type = front_txn->accesses[rid]->type;
+		 if (type == WR) {
+		 char* data = row->data2;
+		 }
+		 }
+		 pthread_rwlock_unlock(&_rw_lock);
+		 } else if (front_txn->rtype == WR) {
+		 for (int rid = 0; rid < front_txn->row_cnt; rid++) {
+		 row_t * row = front_txn->accesses[rid]->orig_row;
+		 access_t type = front_txn->accesses[rid]->type;
+		 if (type == WR) {
+		 memcpy(row->data2, row->data, sizeof(row->data));
+		 front_txn->accesses[rid]->orig_row->manager->remove_access(
+		 type);
+		 }
+		 }
+		 pthread_rwlock_unlock(&_rw_lock);
+		 }
+		 }*/
 	}
 }
 
@@ -101,23 +139,30 @@ void VLLMan::vllMainLoop(txn_man * txn, base_query * query) {
 		TxnQEntry* entry = getQEntry();
 		txn->rtype = RD;
 		entry->txn = txn;
-		pthread_mutex_lock(&_mutex_serial);
-		LIST_PUT_TAIL(_serial_queue, _serial_queue_tail, entry);
-		pthread_mutex_unlock(&_mutex_serial);
+		//pthread_mutex_lock(&_mutex_serial);
+		//LIST_PUT_TAIL(_serial_queue, _serial_queue_tail, entry);
+		//pthread_mutex_unlock(&_mutex_serial);
+		//queue_enqueue(_serial_queue, txn);
+		//printf("push query txn\n");
+
+		g_thread_pool_push(thread_pool, (gpointer)txn, NULL);
+
 	}
 	if (m_query->rtype == WR) {
 		txn_man * front_txn = NULL;
 		uint64_t t5 = get_sys_clock();
 		uint64_t tt5 = get_sys_clock() - t5;
-		//INC_STATS(txn->get_thd_id(), debug5, tt5);
+		INC_STATS(txn->get_thd_id(), debug5, tt5);
 		// _mutex will be unlocked in beginTxn()
 		//pthread_mutex_unlock(&_mutex_queue);
 		TxnQEntry * entry = getQEntry();
 		txn->rtype = WR;
 		entry->txn = txn;
+		entry->next = NULL;
 		int ok = beginTxn(txn, query, entry);
 		if (ok == 2) {
 			execute(txn, query);
+			//printf("2");
 			finishTxn(txn, entry);
 		}
 		assert(ok == 1 || ok == 2);
@@ -150,6 +195,9 @@ int VLLMan::beginTxn(txn_man * txn, base_query * query, TxnQEntry *& entry) {
 		pthread_mutex_lock(&_mutex_queue);
 		LIST_PUT_TAIL(_txn_queue, _txn_queue_tail, entry);
 		pthread_mutex_unlock(&_mutex_queue);
+		//queue_enqueue(_txn_queue,txn);
+		block_num++;
+
 	} else {
 		ret = 2;
 	}
@@ -167,9 +215,11 @@ void VLLMan::finishTxn(txn_man * txn, TxnQEntry * entry) {
 
 	TxnQEntry * entry2 = getQEntry();
 	entry2->txn = txn;
-	pthread_mutex_lock(&_mutex_serial);
-		LIST_PUT_TAIL(_serial_queue, _serial_queue_tail, entry2);
-	pthread_mutex_unlock(&_mutex_serial);
+	//pthread_mutex_lock(&_mutex_serial);
+	//LIST_PUT_TAIL(_serial_queue, _serial_queue_tail, entry2);
+	//pthread_mutex_unlock(&_mutex_serial);
+	queue_enqueue(_serial_queue, txn);
+	//printf("push update txn\n");
 	pthread_mutex_unlock(&_mutex);
 }
 
@@ -199,7 +249,7 @@ void VLLMan::execute(txn_man * txn, base_query * query) {
 		}
 	}
 	uint64_t tt3 = get_sys_clock() - t3;
-	//INC_STATS(txn->get_thd_id(), debug3, tt3);
+	INC_STATS(txn->get_thd_id(), debug3, tt3);
 }
 
 TxnQEntry * VLLMan::getQEntry() {

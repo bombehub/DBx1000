@@ -9,7 +9,6 @@
 #include "plock.h"
 #include "occ.h"
 #include "vll.h"
-extern pthread_barrier_t thread_bar;
 void * f(void *);
 void * exe_blocked(void * id);
 void * mrsw(void * id);
@@ -97,18 +96,17 @@ int main(int argc, char* argv[])
 	for (uint32_t i = 0; i < thd_cnt - 1; i++) 
 		pthread_join(p_thds[i], NULL);
 #else
-	pthread_barrier_init( &thread_bar, NULL, thd_cnt * 2 + 1 );
 	for (uint32_t i = 0; i < thd_cnt ; i++) {
 		uint64_t vid = i;
 		pthread_create(&p_thds[i], NULL, f, (void *)vid);
 	}
 	pthread_t thread_head;
 	pthread_create(&thread_head, NULL, exe_blocked, NULL);
-	 pthread_t daemon[thd_cnt - 1];
-	for (uint32_t i = 0; i < thd_cnt ; i++) {
-		uint64_t vid = i;
-		pthread_create(&daemon[i], NULL,mrsw, NULL);
-	}
+	pthread_t daemon;
+	//for (uint32_t i = 0; i < thd_cnt ; i++) {
+		//uint64_t vid = i;
+		pthread_create(&daemon, NULL,mrsw, NULL);
+	//}
 
 	for (uint32_t i = 0; i < thd_cnt; i++){
 		pthread_join(p_thds[i], NULL);
@@ -120,6 +118,7 @@ int main(int argc, char* argv[])
 	int64_t endtime = get_server_clock();
 	if (WORKLOAD != TEST) {
 		printf("PASS! SimTime = %ld\n", endtime - starttime);
+		printf("%d\n",block_num);
 		if (STATS_ENABLE)
 			stats.print();
 	} else {

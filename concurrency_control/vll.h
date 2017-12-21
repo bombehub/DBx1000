@@ -5,6 +5,8 @@
 #include "helper.h"
 #include "query.h"
 #include "txn.h"
+#include "cqueue.h"
+#include <glib.h>
 class txn_man;
 
 class TxnQEntry {
@@ -28,16 +30,22 @@ public:
 	void finishTxn(txn_man * txn, TxnQEntry * entry);
 	void execute(txn_man * txn, base_query * query);
 private:
-    TxnQEntry * 			_txn_queue;
-    TxnQEntry * 			_txn_queue_tail;
+	//txn queue
+   TxnQEntry*  			_txn_queue;
+   TxnQEntry* 			_txn_queue_tail;
 	int 					_txn_queue_size;
-    TxnQEntry * 			_serial_queue;
-    TxnQEntry * 			_serial_queue_tail;
+	pthread_mutex_t 	 	_mutex_queue;
+    // serial queue
+   //TxnQEntry * 			_serial_queue;
+   //TxnQEntry * 			_serial_queue_tail;
 	int 					_serial_queue_size;
-	pthread_mutex_t 		_mutex;
-	pthread_mutex_t 		_mutex_queue;
-	pthread_mutex_t 		_mutex_serial;
-	pthread_rwlock_t  _rw_lock;
+	//pthread_mutex_t 		_mutex_serial;
+	Queue* _serial_queue;
+
+
+	pthread_mutex_t 		_mutex;   //critical section for begin() and finish()
+
+	GThreadPool *thread_pool;
 
 	TxnQEntry * getQEntry();
 	void returnQEntry(TxnQEntry * entry);

@@ -173,7 +173,7 @@ row_t * txn_man::get_row(row_t * row, access_t type) {
 		wr_cnt ++;
 
 	uint64_t timespan = get_sys_clock() - starttime;
-	//INC_TMP_STATS(get_thd_id(), time_man, timespan);
+	INC_TMP_STATS(get_thd_id(), time_man, timespan);
 	return accesses[row_cnt - 1]->data;
 }
 
@@ -189,7 +189,7 @@ txn_man::index_read(INDEX * index, idx_key_t key, int part_id) {
 	uint64_t starttime = get_sys_clock();
 	itemid_t * item;
 	index->index_read(key, item, part_id, get_thd_id());
-	//INC_TMP_STATS(get_thd_id(), time_index, get_sys_clock() - starttime);
+	INC_TMP_STATS(get_thd_id(), time_index, get_sys_clock() - starttime);
 	return item;
 }
 

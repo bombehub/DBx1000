@@ -19,10 +19,13 @@ OptCC occ_man;
 VLLMan vll_man;
 #endif 
 
+
+int block_num;
+
 bool volatile warmup_finish = false;
 bool volatile enable_thread_mem_pool = false;
 pthread_barrier_t warmup_bar;
-pthread_barrier_t thread_bar;
+pthread_rwlock_t  _rw_lock;
 #ifndef NOGRAPHITE
 carbon_barrier_t enable_barrier;
 #endif
