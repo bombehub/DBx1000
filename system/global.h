@@ -25,6 +25,7 @@
 #include "config.h"
 #include "stats.h"
 #include "dl_detect.h"
+#define NOGRAPHITE
 #ifndef NOGRAPHITE
 #include "carbon_user.h"
 #endif
