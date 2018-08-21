@@ -7,9 +7,10 @@
 #if CC_ALG==TICTOC
 
 void 
-Row_tictoc::init(row_t * row)
+Row_tictoc::init(row_t * row, row_t * row_ap)
 {
 	_row = row;
+	_row_ap = row_ap;
 #if ATOMIC_WORD
 	_ts_word = 0;
 #else

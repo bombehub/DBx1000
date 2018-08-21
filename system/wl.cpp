@@ -1,3 +1,4 @@
+#include <concurrency_control/row_tictoc.h>
 #include "global.h"
 #include "helper.h"
 #include "wl.h"
@@ -119,6 +120,7 @@ void workload::index_insert(INDEX * index, uint64_t key, row_t * row, int64_t pa
 	m_item->init();
 	m_item->type = DT_row;
 	m_item->location = row;
+	m_item->location_ap = row->manager->_row_ap;
 	m_item->valid = true;
 
     assert( index->index_insert(key, m_item, pid) == RCOK );

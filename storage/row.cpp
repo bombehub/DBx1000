@@ -40,7 +40,7 @@ row_t::switch_schema(table_t * host_table) {
 	return RCOK;
 }
 
-void row_t::init_manager(row_t * row) {
+void row_t::init_manager(row_t * row,row_t* row_ap) {
 #if CC_ALG == DL_DETECT || CC_ALG == NO_WAIT || CC_ALG == WAIT_DIE
     manager = (Row_lock *) mem_allocator.alloc(sizeof(Row_lock), _part_id);
 #elif CC_ALG == TIMESTAMP
@@ -60,7 +60,7 @@ void row_t::init_manager(row_t * row) {
 #endif
 
 #if CC_ALG != HSTORE
-	manager->init(this);
+	manager->init(this, row_ap);
 #endif
 }
 

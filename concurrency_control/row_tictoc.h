@@ -29,7 +29,7 @@ class row_t;
 
 class Row_tictoc {
 public:
-	void 				init(row_t * row);
+	void 				init(row_t * row, row_t * row_ap);
 	RC 					access(txn_man * txn, TsType type, row_t * local_row);
 #if SPECULATE
 	RC					write_speculate(row_t * data, ts_t version, bool spec_read); 
@@ -48,6 +48,10 @@ public:
 	void 				get_ts_word(bool &lock, uint64_t &rts, uint64_t &wts);
 private:
 	row_t * 			_row;
+public:
+	row_t * 			_row_v1;
+	row_t * 			_row_v2;
+	row_t * 			_row_ap;
 #if ATOMIC_WORD
 	volatile uint64_t	_ts_word; 
 #else
