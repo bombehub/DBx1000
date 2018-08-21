@@ -5,7 +5,7 @@
 #include "helper.h"
 #include "query.h"
 #include "txn.h"
-#include "cqueue.h"
+//#include "cqueue.h"
 #include <glib.h>
 class txn_man;
 
@@ -40,7 +40,7 @@ private:
    //TxnQEntry * 			_serial_queue_tail;
 	int 					_serial_queue_size;
 	//pthread_mutex_t 		_mutex_serial;
-	Queue* _serial_queue;
+	//Queue* _serial_queue;
 
 
 	pthread_mutex_t 		_mutex;   //critical section for begin() and finish()

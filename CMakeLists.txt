@@ -80,9 +80,7 @@ set(SOURCE_FILES
         system/wl.h
         config-std.h
         config.cpp
-        config.h
-        cqueue.cpp
-        cqueue.h)
+        config.h)
 
 add_executable(Dbx1000 ${SOURCE_FILES})
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR} ./benchmarks/ ./concurrency_control/ ./storage/ ./system/)
