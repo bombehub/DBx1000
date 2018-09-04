@@ -30,6 +30,15 @@ pthread_rwlock_t  _rw_lock;
 carbon_barrier_t enable_barrier;
 #endif
 
+
+int pingpong = 0;
+DBSTATE global_state = NORMAL;
+int query_static_counter = 0;
+int query_delta_counter = 0;
+
+
+
+
 ts_t g_abort_penalty = ABORT_PENALTY;
 bool g_central_man = CENTRAL_MAN;
 UInt32 g_ts_alloc = TS_ALLOC;

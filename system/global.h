@@ -89,6 +89,13 @@ extern ts_t g_dl_loop_detect;
 extern bool g_ts_batch_alloc;
 extern UInt32 g_ts_batch_num;
 
+enum DBSTATE {NORMAL, TAKEN, WAITING, COMPACTION, COMPLETE};
+extern int pingpong;
+extern DBSTATE global_state;
+extern int query_static_counter;
+extern int query_delta_counter;
+
+
 extern map<string, string> g_params;
 
 // YCSB

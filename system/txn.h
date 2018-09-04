@@ -110,7 +110,9 @@ private:
 	bool			_atomic_timestamp;
 	ts_t 			_max_wts;
 	// the following methods are defined in concurrency_control/tictoc.cpp
-	RC				validate_tictoc();
+	RC				validate_tictoc(int _pingpong);
+public:
+	int _pingpong;
 #elif CC_ALG == SILO
 	ts_t 			_cur_tid;
 	RC				validate_silo();

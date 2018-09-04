@@ -59,7 +59,7 @@ Row_tictoc::access(txn_man *txn, TsType type, row_t *local_row) {
 }
 
 void
-Row_tictoc::write_data(row_t *data, ts_t wts) {
+Row_tictoc::write_data(row_t *data, ts_t wts, int _pingpong) {
 #if ATOMIC_WORD
     uint64_t v = _ts_word;
 #if TICTOC_MV
@@ -72,12 +72,22 @@ Row_tictoc::write_data(row_t *data, ts_t wts) {
     v |= wts;
     _ts_word = v;
     _row->copy(data);
-    if (_row_v1 == NULL) {
-        //_row_v1 = (row_t *) _mm_malloc(sizeof(row_t), 64);
-        _row_v1 = (row_t *)malloc(sizeof(row_t));
-        _row_v1->init(data->get_table(),data->get_part_id(),data->get_row_id());
+    if(_pingpong = 0){
+        if (_row_v1 == NULL) {
+            //_row_v1 = (row_t *) _mm_malloc(sizeof(row_t), 64);
+            _row_v1 = (row_t *)malloc(sizeof(row_t));
+            _row_v1->init(data->get_table(),data->get_part_id(),data->get_row_id());
+        }
+        _row_v1->copy(data);
+    } else if(_pingpong = 1){
+        if (_row_v2 == NULL) {
+            //_row_v1 = (row_t *) _mm_malloc(sizeof(row_t), 64);
+            _row_v2 = (row_t *)malloc(sizeof(row_t));
+            _row_v2->init(data->get_table(),data->get_part_id(),data->get_row_id());
+        }
+        _row_v2->copy(data);
     }
-    _row_v1->copy(data);
+
 #if WRITE_PERMISSION_LOCK
     _ts_word &= (~LOCK_BIT);
 #endif
