@@ -35,7 +35,8 @@ int pingpong = 0;
 DBSTATE global_state = NORMAL;
 int query_static_counter = 0;
 int query_delta_counter = 0;
-
+std::set<uint64_t> set0;
+std::set<uint64_t> set1;
 
 
 

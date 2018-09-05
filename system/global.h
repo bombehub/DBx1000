@@ -94,7 +94,8 @@ extern int pingpong;
 extern DBSTATE global_state;
 extern int query_static_counter;
 extern int query_delta_counter;
-
+extern std::set<uint64_t> set0;
+extern std::set<uint64_t> set1;
 
 extern map<string, string> g_params;
 

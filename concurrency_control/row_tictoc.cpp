@@ -72,20 +72,23 @@ Row_tictoc::write_data(row_t *data, ts_t wts, int _pingpong) {
     v |= wts;
     _ts_word = v;
     _row->copy(data);
-    if(_pingpong = 0){
+    uint64_t key = _row->get_primary_key();
+    if(_pingpong == 0){
         if (_row_v1 == NULL) {
             //_row_v1 = (row_t *) _mm_malloc(sizeof(row_t), 64);
             _row_v1 = (row_t *)malloc(sizeof(row_t));
             _row_v1->init(data->get_table(),data->get_part_id(),data->get_row_id());
         }
         _row_v1->copy(data);
-    } else if(_pingpong = 1){
+        set0.insert(key);
+    } else if(_pingpong == 1){
         if (_row_v2 == NULL) {
             //_row_v1 = (row_t *) _mm_malloc(sizeof(row_t), 64);
             _row_v2 = (row_t *)malloc(sizeof(row_t));
             _row_v2->init(data->get_table(),data->get_part_id(),data->get_row_id());
         }
         _row_v2->copy(data);
+        set1.insert(key);
     }
 
 #if WRITE_PERMISSION_LOCK
