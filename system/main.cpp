@@ -17,6 +17,8 @@ thread_t ** m_thds;
 // defined in parser.cpp
 void parser(int argc, char * argv[]);
 
+void state_controller(workload *pWorkload);
+
 int main(int argc, char* argv[])
 {
 	parser(argc, argv);
@@ -88,12 +90,13 @@ int main(int argc, char* argv[])
 	// spawn and run txns again.
 	int64_t starttime = get_server_clock();
 #if CC_ALG != VLL
-	for (uint32_t i = 0; i < thd_cnt - 1; i++) {
+	for (uint32_t i = 0; i < thd_cnt; i++) {
 		uint64_t vid = i;
 		pthread_create(&p_thds[i], NULL, f, (void *)vid);
 	}
-	f((void *)(thd_cnt - 1));
-	for (uint32_t i = 0; i < thd_cnt - 1; i++) 
+	//f((void *)(thd_cnt - 1));
+	state_controller(m_wl);
+	for (uint32_t i = 0; i < thd_cnt; i++)
 		pthread_join(p_thds[i], NULL);
 #else
 	for (uint32_t i = 0; i < thd_cnt ; i++) {
@@ -125,6 +128,26 @@ int main(int argc, char* argv[])
 		((TestWorkload *)m_wl)->summarize();
 	}
 	return 0;
+}
+
+void state_controller(workload *pWorkload) {
+    while(pWorkload->sim_done) {
+        global_state = NORMAL;
+        usleep(10);
+        global_state = TAKEN;
+        pingpong = 1 - pingpong;
+        usleep(10);
+        global_state = WAITING;
+        while (query_static_counter > 0);
+        global_state = COMPACTION;
+        if(pingpong == 0) {
+            usleep(10);
+        } else if(pingpong == 1) {
+            usleep(10);
+        }
+        global_state = COMPLETE;
+        while (query_delta_counter > 0);
+    }
 }
 
 void * f(void * id) {
