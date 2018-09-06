@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.8)
 project(Dbx1000)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "-pg -g ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-Wall -pg -g ${CMAKE_CXX_FLAGS}")
 SET(LINK_FLAGS "-pg ${LINK_FLAGS}")
-
+add_definitions(-D NOGRAPHITE=1)
 
 set(SOURCE_FILES
         benchmarks/test.h

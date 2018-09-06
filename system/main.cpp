@@ -170,6 +170,7 @@ void *state_controller(void *pWorkload) {
         global_state = COMPLETE;
         while (query_delta_counter > 0);
     }
+    return NULL;
 }
 
 void *f(void *id) {

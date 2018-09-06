@@ -28,7 +28,7 @@ RC ycsb_txn_man::run_txn(base_query *query) {
     itemid_t *m_item = NULL;
     row_cnt = 0;
     int thread_id = get_thd_id();
-    if (thread_id < 2) {    //  OLTP
+    if (thread_id < oltp_thread_cnt) {    //  OLTP
 
         for (uint32_t rid = 0; rid < m_query->request_cnt; rid++) {
             ycsb_request *req = &m_query->requests[rid];
@@ -121,7 +121,7 @@ RC ycsb_txn_man::run_txn(base_query *query) {
                     } else {
                         row = ((row_t *) m_item->location_ap);
                     }
-                } else if (query_method = 0) {
+                } else if (query_method == 0) {
                     row = ((row_t *) m_item->location_ap);
                 }
 

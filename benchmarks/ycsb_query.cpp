@@ -13,7 +13,7 @@ int factor_htap = 8;
 
 void ycsb_query::init(uint64_t thd_id, workload *h_wl, Query_thd *query_thd) {
     _query_thd = query_thd;
-    if (thd_id < 2)
+    if (thd_id < oltp_thread_cnt)
         requests = (ycsb_request *)
                 mem_allocator.alloc(sizeof(ycsb_request) * g_req_per_query, thd_id);
     else
@@ -97,7 +97,7 @@ void ycsb_query::gen_requests(uint64_t thd_id, workload *h_wl) {
 
     int rid = 0;
     UInt32 query_count = g_req_per_query;
-    if (thd_id >= 2)
+    if (thd_id >= oltp_thread_cnt)
         query_count = query_count * factor_htap;
     for (UInt32 tmp = 0; tmp < query_count; tmp++) {
         double r;

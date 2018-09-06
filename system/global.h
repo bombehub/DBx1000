@@ -25,7 +25,7 @@
 #include "config.h"
 #include "stats.h"
 #include "dl_detect.h"
-#define NOGRAPHITE
+
 #ifndef NOGRAPHITE
 #include "carbon_user.h"
 #endif
@@ -92,6 +92,7 @@ extern UInt32 g_ts_batch_num;
 enum DBSTATE {NORMAL, TAKEN, WAITING, COMPACTION, COMPLETE};
 extern int pingpong;
 extern DBSTATE global_state;
+extern int oltp_thread_cnt;
 extern int query_static_counter;
 extern int query_delta_counter;
 extern std::set<uint64_t> set0;
