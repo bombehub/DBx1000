@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 2.8)
 project(Dbx1000)
 
 set(CMAKE_CXX_STANDARD 11)
@@ -48,8 +48,6 @@ set(SOURCE_FILES
         concurrency_control/row_vll.h
         concurrency_control/silo.cpp
         concurrency_control/tictoc.cpp
-        concurrency_control/vll.cpp
-        concurrency_control/vll.h
         storage/catalog.cpp
         storage/catalog.h
         storage/index_base.h
@@ -93,8 +91,8 @@ SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 find_package(Threads)
 target_link_libraries(Dbx1000 ${CMAKE_THREAD_LIBS_INIT})
 
-include_directories(/usr/include/glib-2.0 /usr/lib/x86_64-linux-gnu/glib-2.0/include)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GLIB_PKG glib-2.0)
-include_directories(${GLIB_PKG_INCLUDE_DIRS})
-target_link_libraries (Dbx1000 glib-2.0)
+#include_directories(/usr/include/glib-2.0 /usr/lib/x86_64-linux-gnu/glib-2.0/include)
+#find_package(PkgConfig REQUIRED)
+#pkg_check_modules(GLIB_PKG glib-2.0)
+#include_directories(${GLIB_PKG_INCLUDE_DIRS})
+#target_link_libraries (Dbx1000 glib-2.0)

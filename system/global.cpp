@@ -6,7 +6,7 @@
 #include "query.h"
 #include "plock.h"
 #include "occ.h"
-#include "vll.h"
+//#include "vll.h"
 
 mem_alloc mem_allocator;
 Stats stats;
