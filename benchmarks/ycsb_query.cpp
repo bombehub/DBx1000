@@ -103,7 +103,7 @@ void ycsb_query::gen_requests(uint64_t thd_id, workload *h_wl) {
         double r;
         drand48_r(&_query_thd->buffer, &r);
         ycsb_request *req = &requests[rid];
-        if (thd_id < 2)
+        if (thd_id < oltp_thread_cnt)
             if (r < g_read_perc) {
                 req->rtype = RD;
             } else if (r >= g_read_perc && r <= g_write_perc + g_read_perc) {

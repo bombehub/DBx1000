@@ -127,8 +127,7 @@ int main(int argc, char *argv[]) {
 #endif
     int64_t endtime = get_server_clock();
     if (WORKLOAD != TEST) {
-        printf("PASS! SimTime = %ld\n", endtime - starttime);
-        printf("%d\n", block_num);
+        printf("PASS! SimTime = %f\n", 1.0*(endtime - starttime)/1000000000.0);
         if (STATS_ENABLE)
             stats.print();
     } else {
