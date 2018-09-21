@@ -81,6 +81,8 @@ void parser(int argc, char * argv[]) {
 			g_field_per_tuple = atoi( &argv[i][2] );
 		else if (argv[i][1] == 'n')
 			g_num_wh = atoi( &argv[i][2] );
+		else if (argv[i][1] == 'x')
+			oltp_thread_cnt = atoi( &argv[i][2] );
 		else if (argv[i][1] == 'G') {
 			if (argv[i][2] == 'a')
 				g_abort_penalty = atoi( &argv[i][3] );
