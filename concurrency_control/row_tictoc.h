@@ -29,7 +29,7 @@ class row_t;
 
 class Row_tictoc {
 public:
-	void 				init(row_t * row, row_t * row_ap);
+	void 				init(row_t * row, row_t * row_ap,row_t* row_v1,row_t* row_v2);
 	RC 					access(txn_man * txn, TsType type, row_t * local_row);
 #if SPECULATE
 	RC					write_speculate(row_t * data, ts_t version, bool spec_read); 

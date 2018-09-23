@@ -142,12 +142,16 @@ void * ycsb_wl::init_table_slice() {
 			new_row->set_value(fid, value);
 		}
 		new_row->manager->_row_ap->copy(new_row);
+		new_row->manager->_row_v1->copy(new_row);
+        new_row->manager->_row_v2->copy(new_row);
 		itemid_t * m_item =
 			(itemid_t *) mem_allocator.alloc( sizeof(itemid_t), part_id );
 		assert(m_item != NULL);
 		m_item->type = DT_row;
 		m_item->location = new_row;
 		m_item->location_ap = new_row->manager->_row_ap;
+		m_item->location_v1 = new_row->manager->_row_v1;
+        m_item->location_v2 = new_row->manager->_row_v2;
 		m_item->valid = true;
 		uint64_t idx_key = primary_key;
 		

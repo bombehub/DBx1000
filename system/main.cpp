@@ -153,7 +153,7 @@ void *state_controller(void *pWorkload) {
             for (set<uint64_t>::iterator itr = set1.begin(); itr != set1.end(); itr++) {
                 index->index_read(*itr, item, 0, 0);
                 ((row_t *) item->location_ap)->copy((row_t *) item->location_v2);
-                free(item->location_v2);
+                //free(item->location_v2);
             }
             set1.clear();
         } else if (pingpong == 1) {
@@ -162,7 +162,7 @@ void *state_controller(void *pWorkload) {
             for (set<uint64_t>::iterator itr = set0.begin(); itr != set0.end(); itr++) {
                 index->index_read(*itr, item, 0, 0);
                 ((row_t *) item->location_ap)->copy((row_t *) item->location_v1);
-                free(item->location_v1);
+                //free(item->location_v1);
             }
             set0.clear();
         }
