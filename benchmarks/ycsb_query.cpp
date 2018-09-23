@@ -9,7 +9,6 @@ uint64_t ycsb_query::the_n = 0;
 double ycsb_query::denom = 0;
 
 
-int factor_htap = 8;
 
 void ycsb_query::init(uint64_t thd_id, workload *h_wl, Query_thd *query_thd) {
     _query_thd = query_thd;

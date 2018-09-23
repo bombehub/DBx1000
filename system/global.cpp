@@ -33,6 +33,7 @@ carbon_barrier_t enable_barrier;
 
 int pingpong = 0;
 DBSTATE global_state = NORMAL;
+int factor_htap = 8;
 int oltp_thread_cnt = 4;
 int query_static_counter = 0;
 int query_delta_counter = 0;

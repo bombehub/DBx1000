@@ -92,6 +92,7 @@ extern UInt32 g_ts_batch_num;
 enum DBSTATE {NORMAL, TAKEN, WAITING, COMPACTION, COMPLETE};
 extern int pingpong;
 extern DBSTATE global_state;
+extern int factor_htap;
 extern int oltp_thread_cnt;
 extern int query_static_counter;
 extern int query_delta_counter;
